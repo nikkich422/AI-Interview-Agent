@@ -58,5 +58,5 @@ const interviewSchema = new mongoose.Schema({
     }
 }, {timestamps: true});
 
-const interview = mongoose.model("Interview", interviewSchema);
-export default interview;
+const InterviewModel = mongoose.model("Interview", interviewSchema);
+export default InterviewModel;

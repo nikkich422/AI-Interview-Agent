@@ -49,7 +49,7 @@ const Step1Setup = ({ onStart }) => {
     }
   }
 
-  const handleStart = async (req, res) => {
+  const handleStart = async () => {
     setLoading(true);
     try {
         const result = await axios.post(ServerUrl + "/api/interview/generate-questions", {
@@ -218,7 +218,7 @@ const Step1Setup = ({ onStart }) => {
                     whileTap={{ scale: 0.95 }}
                     className='w-full disabled:bg-gray-600 bg-green-600 hover:bg-green-700 text-white py-3
                     rounded-full text-lg font-semibold transition duration-300 shadow-md cursor-pointer'>
-                        { loading ? "Starting" : "Start Interview" }
+                        { loading ? "Starting..." : "Start Interview" }
                     </motion.button>
                         
                 </div>

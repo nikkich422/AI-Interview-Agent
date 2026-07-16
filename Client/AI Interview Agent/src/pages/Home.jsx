@@ -17,9 +17,11 @@ import analyticsImg from "../assets/history.png";
 import Footer from '../component/Footer';
 
 const Home = () => {
-  const {userData} = useSelector((state) => state.user);
-  const {showAuth, setShowAuth} = useState(false);
+  const userData = useSelector((state) => state.user);
+  const [showAuth, setShowAuth] = useState(false);
   const navigate = useNavigate();
+
+  console.log("UserData: ", userData);
 
   return (
     <div className='min-h-screen bg-[#f3f3f3] flex flex-col'>
