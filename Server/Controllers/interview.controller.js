@@ -222,13 +222,13 @@ export const generateQuestion = async (req, res) => {
 
 export const submitAnswer = async (req, res) => {
     try {
-        console.log("BODY:", req.body);
-        // console.log("ANSWER:", answer);
+        // console.log("submitAnswer reached");
 
         const {interviewId, questionIndex, answer, timeTaken} = req.body;
 
         const interview = await InterviewModel.findById(interviewId);
         const question = interview.questions[questionIndex];
+
         // if no answer
         if(!answer){
             question.score = 0;
@@ -307,7 +307,11 @@ export const submitAnswer = async (req, res) => {
             }
         ];
 
+        // console.log("Before askAi");
         const aiResponse = await askAi(messages);
+        // console.log("After askAi");
+        // console.log("AI Response:", aiResponse);
+        // console.log("Type:", typeof aiResponse);
 
         let parsed;
 
@@ -336,6 +340,7 @@ export const submitAnswer = async (req, res) => {
         })
 
     } catch (error) {
+        console.error("SUBMIT ERROR:", error);
         return res.status(500).json({
             message: `Failed to submit answer ${error}`,
         })
@@ -383,7 +388,7 @@ export const finishInterview = async (req, res) => {
             confidence: Number(avgConfidence.toFixed(1)),
             communication: Number(avgCommunication.toFixed(1)),
             correctness: Number(avgCorrectness.toFixed(1)),
-            questionWiseScore: interview.questions.map(() => ({
+            questionWiseScore: interview.questions.map((q) => ({
                 question: q.question,
                 score: q.score || 0,
                 feedback: q.feedback || 0,
@@ -402,7 +407,8 @@ export const finishInterview = async (req, res) => {
 
 export const getMyInterviews = async (req, res) => {
     try {
-        const interviews = await InterviewModel.findOne({ userId: req.userId})
+        // const interviews = await InterviewModel.find({})
+        const interviews = await InterviewModel.find({ userId: req.userId})
         .sort({ createdAt: -1 })
         .select("role experience mode finalScore status createdAt");
 
@@ -414,6 +420,10 @@ export const getMyInterviews = async (req, res) => {
 
 export const getInterviewReport = async (req, res) => {
     try {
+        const {id} = req.params;
+        console.log("id: ",id);
+        const interview = await InterviewModel.findById(id);
+
         if(!interview){
             return res.status(400).json({ message: "Interview not found." });
         }
@@ -432,12 +442,21 @@ export const getInterviewReport = async (req, res) => {
     
         const avgConfidence = totalQuestions ? totalConfidence / totalQuestions : 0;
         const avgCommunication = totalQuestions ? totalCommunication / totalQuestions : 0;
-        const avgCorrectness = totalCorrectness ? totalCorrectness / totalCorrectness : 0;
+        const avgCorrectness = totalCorrectness ? totalCorrectness / totalQuestions : 0;
+        const finalScore = (avgConfidence + avgCommunication + avgCorrectness) / 3;
+
+        const questionWiseScore = interview.questions.map((q) => ({
+            question: q.question,
+            score: q.score || 0,
+            feedback: q.feedback || "",
+          }));
     
         return res.json({
             confidence: Number(avgConfidence.toFixed(1)),
             communication: Number(avgCommunication.toFixed(1)),
             correctness: Number(avgCorrectness.toFixed(1)),
+            finalScore: Number(finalScore.toFixed(1)),
+            questionWiseScore,
         })
     } catch (error) {
         return res.status(500).json({ message: `failed to fetch Interview Report ${error}`});

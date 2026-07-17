@@ -164,7 +164,7 @@ const Step1Setup = ({ onStart }) => {
                                 id='resumeUpload'
                                 className='hidden'
                                 onChange={(e) => setResumeFile(e.target.files[0])} />
-                            <p className='text-gray-600 font-medium'>{resumeFile ? resumeFile.name : "Click to upload resume (Optional"}</p>
+                            <p className='text-gray-600 font-medium'>{resumeFile ? resumeFile.name : "Click to upload resume (Optional)"}</p>
 
                             {resumeFile && (
                                 <motion.button 

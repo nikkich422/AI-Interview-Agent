@@ -3,19 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import {Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis} from "recharts";
+import {Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { FaArrowLeft } from 'react-icons/fa';
 
 const Step3Report = ({ report }) => {
 
   const navigate = useNavigate();
+  console.log(report);
 
   if(!report){
     return (
       <div className='min-h-screen flex items-center justify-center'>
         <p className='text-gray-500 text-lg'>
           Loading Report...
+          {report}
         </p>
       </div>
     )
@@ -29,7 +32,7 @@ const Step3Report = ({ report }) => {
     questionWiseScore = [],
   } = report;
 
-  const questionScoreData = questionWiseScore.map((item, index) => ({
+  const questionScoreData = questionWiseScore.map((score, index) => ({
     name: `Q${index+1}`,
     score: score.score || 0,
   }));
@@ -61,123 +64,373 @@ const Step3Report = ({ report }) => {
 
   const downloadPDF = () => {
     const doc = new jsPDF("p", "mm", "a4");
-
+  
     const pageWidth = doc.internal.pageSize.getWidth();
-    const margin = 20;
+    const pageHeight = doc.internal.pageSize.getHeight();
+  
+    const margin = 15;
     const contentWidth = pageWidth - margin * 2;
-
-    let currentY = 25;
-
-    // TITLE
+  
+    let currentY = 20;
+  
+    // HEADER
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(20);
-    doc.setTextColor(34, 197, 94);
-    doc.text("AI Interview Performance Report", pageWidth / 2, currentY, {
-      align: "center",
-    })
-
-    currentY += 5;
-
-    // underline
-    doc.setDrawColor(34, 197, 94);
-    doc.line(margin, currentY + 2, pageWidth - margin, currentY + 2);
-
-    currentY += 15;
-
-    // FINAL SCORE BOX
-    doc.setFillColor(240, 253, 244);
-    doc.roundedRect(margin, currentY, contentWidth, 20, 4, 4, "F");
-
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(22);
+    doc.setTextColor(22, 163, 74);
+  
     doc.text(
-      `Final Score: ${finalScore}/10`,
+      "AI Interview Performance Report",
+      pageWidth / 2,
+      currentY,
+      { align: "center" }
+    );
+  
+    currentY += 8;
+  
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+  
+    doc.text(
+      `Generated: ${new Date().toLocaleDateString()}`,
+      pageWidth / 2,
+      currentY,
+      { align: "center" }
+    );
+  
+    currentY += 8;
+  
+    doc.setDrawColor(22, 163, 74);
+    doc.setLineWidth(0.5);
+    doc.line(margin, currentY, pageWidth - margin, currentY);
+  
+    currentY += 12;
+  
+    // OVERALL RATING
+    let rating = "";
+    let ratingColor = [22, 163, 74];
+  
+    if (finalScore >= 8) {
+      rating = "Excellent";
+      ratingColor = [22, 163, 74];
+    } else if (finalScore >= 6) {
+      rating = "Good";
+      ratingColor = [59, 130, 246];
+    } else if (finalScore >= 4) {
+      rating = "Average";
+      ratingColor = [245, 158, 11];
+    } else {
+      rating = "Needs Improvement";
+      ratingColor = [239, 68, 68];
+    }
+  
+    doc.setFillColor(...ratingColor);
+    doc.roundedRect(margin, currentY, contentWidth, 18, 3, 3, "F");
+  
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(255);
+  
+    doc.text(
+      `Overall Rating: ${rating}`,
       pageWidth / 2,
       currentY + 12,
-      {
-        align: "center"
-      }
+      { align: "center" }
     );
-    currentY += 30;
-
-    // SKILLS BOX
-    doc.setFillColor(249, 250, 251);
-    doc.roundedRect(margin, currentY, contentWidth, 30, 4, 4, "F");
-
-    doc.setFontSize(12);
-
-    doc.text(`Confidence: ${confidence}`, margin + 10, currentY - 10);
-    doc.text(`Communication: ${communication}`, margin + 10, currentY + 18);
-    doc.text(`Correctness: ${correctness}`, margin + 10, currentY + 26);
-
-    currentY += 45;
-
-    // ADVICE
-    let advice = "";
-
-    if(finalScore >= 8){
-      advice = "Excellence Performance. Maintain confidence and structure. Continue refining clarity and supporting answers with strong real-world examples.";
-    } else if(finalScore >= 5) {
-      advice = "Good foundation shown. Improve clarity and structure. Practice delivering concise, confident answers with stronger supporting examples."
-    } else{
-      advice = "Significant improvement required. Focus on structured thinking, clarity, and confident delivery. Practice answering aloud regularly.";
-    }
-
-    doc.setFillColor(255, 255, 255);
-    doc.setDrawColor(220);
-    doc.roundedRect(margin, currentY, contentWidth, 35, 4, 4);
-
+  
+    currentY += 28;
+  
+    // FINAL SCORE
+    doc.setFillColor(240, 253, 244);
+    doc.roundedRect(margin, currentY, contentWidth, 22, 3, 3, "F");
+  
     doc.setFont("helvetica", "bold");
-    doc.text("Professional Advice", margin + 10, currentY + 10);
-
+    doc.setTextColor(0);
+    doc.setFontSize(16);
+  
+    doc.text(
+      `Final Interview Score: ${finalScore}/10`,
+      pageWidth / 2,
+      currentY + 14,
+      { align: "center" }
+    );
+  
+    currentY += 35;
+  
+    // SCORE CARDS
+    const cards = [
+      {
+        title: "Confidence",
+        value: confidence,
+        color: [59, 130, 246],
+      },
+      {
+        title: "Communication",
+        value: communication,
+        color: [34, 197, 94],
+      },
+      {
+        title: "Correctness",
+        value: correctness,
+        color: [168, 85, 247],
+      },
+    ];
+    
+    const cardWidth = 55;
+    const cardHeight = 38;
+    const gap = 7;
+    
+    cards.forEach((card, index) => {
+      const x = margin + index * (cardWidth + gap);
+    
+      // Shadow
+      doc.setFillColor(235, 235, 235);
+      doc.roundedRect(
+        x + 1,
+        currentY + 1,
+        cardWidth,
+        cardHeight,
+        4,
+        4,
+        "F"
+      );
+    
+      // Card
+      doc.setFillColor(255, 255, 255);
+      doc.roundedRect(
+        x,
+        currentY,
+        cardWidth,
+        cardHeight,
+        4,
+        4,
+        "F"
+      );
+    
+      // Border
+      doc.setDrawColor(225, 225, 225);
+      doc.roundedRect(
+        x,
+        currentY,
+        cardWidth,
+        cardHeight,
+        4,
+        4
+      );
+    
+      // Accent line
+      doc.setFillColor(...card.color);
+      doc.roundedRect(
+        x,
+        currentY,
+        cardWidth,
+        4,
+        4,
+        4,
+        "F"
+      );
+    
+      // Title
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      doc.setTextColor(100);
+    
+      doc.text(
+        card.title,
+        x + cardWidth / 2,
+        currentY + 15,
+        { align: "center" }
+      );
+    
+      // Score
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(20);
+      doc.setTextColor(...card.color);
+    
+      doc.text(
+        `${card.value}`,
+        x + cardWidth / 2,
+        currentY + 29,
+        { align: "center" }
+      );
+    
+      // /10
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(140);
+    
+      doc.text(
+        "/10",
+        x + cardWidth / 2,
+        currentY + 35,
+        { align: "center" }
+      );
+    });
+    
+    currentY += 50;
+  
+    // EXECUTIVE SUMMARY
+    let summary = "";
+  
+    if (finalScore >= 8) {
+      summary =
+        "The candidate demonstrated strong communication skills, technical understanding, and confidence throughout the interview. Responses were clear, relevant, and well-structured.";
+    } else if (finalScore >= 5) {
+      summary =
+        "The candidate showed a reasonable understanding of the concepts discussed. Further improvement in response structure, depth, and confidence would strengthen future interview performance.";
+    } else {
+      summary =
+        "The candidate requires additional preparation and practice. Focus should be placed on communication clarity, technical depth, and structured problem explanation.";
+    }
+  
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(40);
+  
+    doc.text("Executive Summary", margin, currentY);
+  
+    currentY += 8;
+  
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
-
-    const splitAdvice = doc.splitTextToSize(advice, contentWidth - 20);
-    doc.text(splitAdvice, margin + 10, currentY + 20);
-
-    currentY += 50;
-
-    // QUESTION TABLE
+  
+    const summaryLines = doc.splitTextToSize(
+      summary,
+      contentWidth
+    );
+  
+    doc.text(summaryLines, margin, currentY);
+  
+    currentY += summaryLines.length * 6 + 12;
+  
+    // PROFESSIONAL ADVICE
+    let advice = "";
+  
+    if (finalScore >= 8) {
+      advice =
+        "Excellent performance. Continue refining communication and supporting answers with practical examples and measurable achievements.";
+    } else if (finalScore >= 5) {
+      advice =
+        "Build stronger answer structures using real-world examples. Focus on concise communication and confidence during technical discussions.";
+    } else {
+      advice =
+        "Practice mock interviews regularly. Focus on communication, confidence, and explaining technical concepts in a structured and understandable manner.";
+    }
+  
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(margin, currentY, contentWidth, 35, 3, 3, "F");
+  
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+  
+    doc.text(
+      "Professional Recommendation",
+      margin + 8,
+      currentY + 10
+    );
+  
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+  
+    const adviceLines = doc.splitTextToSize(
+      advice,
+      contentWidth - 15
+    );
+  
+    doc.text(
+      adviceLines,
+      margin + 8,
+      currentY + 20
+    );
+  
+    currentY += 48;
+  
+    // QUESTION ANALYSIS TABLE
     autoTable(doc, {
       startY: currentY,
-      margin: { left: margin, right: margin },
-      head: [['#', "Question", "Score", "Feedback"]],
+  
+      head: [
+        [
+          "#",
+          "Question",
+          "Score",
+          "Feedback"
+        ]
+      ],
+  
       body: questionWiseScore.map((q, i) => [
-        `${i + 1}`,
+        i + 1,
         q.question,
         `${q.score}/10`,
         q.feedback,
       ]),
+  
+      margin: {
+        left: margin,
+        right: margin,
+      },
+  
       styles: {
         fontSize: 9,
-        cellPadding: 5,
-        valign: "top",
+        cellPadding: 4,
+        overflow: "linebreak",
+        valign: "middle",
       },
+  
       headStyles: {
-        fillColor: [34, 197, 94],
-        textColor: 255,
+        fillColor: [22, 163, 74],
+        textColor: [255, 255, 255],
         halign: "center",
+        fontStyle: "bold",
       },
-      columnStyles: {
-        0: { cellWidth: 10, halign: "center" },
-        1: { cellWidth: 55 },
-        2: { cellWidth: 20, halign: "center" },
-        3: { cellWidth: "auto" },
-      },
+  
       alternateRowStyles: {
-        fillColor: [249, 250, 251],
+        fillColor: [248, 250, 252],
+      },
+  
+      columnStyles: {
+        0: {
+          cellWidth: 10,
+          halign: "center",
+        },
+        1: {
+          cellWidth: 70,
+        },
+        2: {
+          cellWidth: 18,
+          halign: "center",
+        },
+        3: {
+          cellWidth: "auto",
+        },
       },
     });
-
+  
+    // FOOTER
+    const totalPages = doc.getNumberOfPages();
+  
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+  
+      doc.setFontSize(9);
+      doc.setTextColor(120);
+  
+      doc.text(
+        `AI Interview Analytics Report | Page ${i} of ${totalPages}`,
+        pageWidth / 2,
+        pageHeight - 8,
+        { align: "center" }
+      );
+    }
+  
     doc.save("AI_Interview_Report.pdf");
-  }
+  };
 
   return (
     <div className='min-h-screen bg-linear-to-br from-gray-50 to-green-50 px-4 sm:px-6 lg:px-10 py-8'>
-      <div className='mb-8 flex flex-col sm:flex-row sm:justify-center'>
-        <div className='md:mb-10 w-full flex items-start gap-4 flex-wrap'>
-          <button onClick={() => navigate("/")}
+      <div className='mb-8 flex flex-col sm:flex-row sm:justify-center items-start'>
+        <div className='md:mb-10 mb-2 w-full flex items-start gap-4 flex-wrap'>
+          <button onClick={() => navigate("/history")}
             className='mt-1 p-3 rounded-full bg-white shadow hover:shadow-md transition'>
               <FaArrowLeft className='text-gray-600' />
           </button>
@@ -192,7 +445,7 @@ const Step3Report = ({ report }) => {
           </div>
         </div>
 
-        <button onClick={downloadPDF} className='bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl shadow-md transition-all duration-300 font-semibold text-sm sm:text-base text-nowrap'>
+        <button onClick={downloadPDF} className='bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-6 rounded-xl shadow-md transition-all duration-300 font-semibold text-sm sm:text-base text-nowrap ml-auto'>
           Download PDF
         </button>
       </div>
@@ -217,7 +470,7 @@ const Step3Report = ({ report }) => {
                   trailColor: "#e5e7eb"
               })}
               />
-          </div>
+            </div>
 
             <p className='text-gray-400 mt-3 text-xs sm:text-sm'>
               Out of 10
@@ -253,20 +506,6 @@ const Step3Report = ({ report }) => {
 
                     <div className='bg-gray-200 h-2 sm:h-3 rounded-full'>
                       <div className='bg-green-500 h-full rounded-full' style={{ width: `${s.value * 10}%`}}>
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={questionScoreData}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis domain={[0, 10]} />
-                          <Tooltip />
-                          <Area type="monotone"
-                            dataKey="score"
-                            stroke="#22c55e"
-                            fill="#bbf7d0"
-                            strokeWidth={3}
-                          />
-                          </AreaChart>
-                        </ResponsiveContainer>
                       </div>
                     </div>
                   </div>
@@ -287,7 +526,20 @@ const Step3Report = ({ report }) => {
             </h3>
 
             <div className='h-64 sm:h-72'>
-              
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={questionScoreData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis domain={[0, 10]} />
+                <Tooltip />
+                <Area type="monotone"
+                  dataKey="score"
+                  stroke="#22c55e"
+                  fill="#bbf7d0"
+                  strokeWidth={3}
+                />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </motion.div>
 
@@ -335,4 +587,4 @@ const Step3Report = ({ report }) => {
   )
 }
 
-export default Step3Report
+export default Step3Report;

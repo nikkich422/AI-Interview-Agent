@@ -14,12 +14,13 @@ const InterviewPage = () => {
             setStep(2)
         }}/>}
       {step === 2 && <Step2Interview interviewData={interviewData} onFinish={(report) => {
+        console.log("Interview page report: ", report);
         setInterviewData(report)
         setStep(3)
       }} />
       }
       {
-        step === 3 && <Step3Report />
+        step === 3 && <Step3Report report={interviewData} />
       }
     </div>
   )

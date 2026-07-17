@@ -275,9 +275,10 @@ const Step2Interview = ({interviewData, onFinish}) => {
         setIsMicOn(false);
 
         try {
-            const result = await axios.post(ServerUrl + "/api/interview/finish", {
-                withCredentials: true,
-            });
+            const result = await axios.post(ServerUrl + "/api/interview/finish", 
+                {interviewId}, 
+                {withCredentials: true}
+            );
             console.log(result.data);
             onFinish(result.data);
         } catch (error) {

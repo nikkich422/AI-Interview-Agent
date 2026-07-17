@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
 import { ServerUrl } from '../App';
 import Step3Report from '../component/Step3Report';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
 const InterviewReport = () => {
   const [report, setReport] = useState(null);
-  const navigate = useNavigate();
+  const {id} = useParams();
 
   useEffect(() => {
     const fetchRoport = async () => {
       try {
-        const result = await axios.get(ServerUrl + "/api/interview/report" + id, {
+        const result = await axios.get(ServerUrl + "/api/interview/report/" + id, {
           withCredentials: true,
         })
 
