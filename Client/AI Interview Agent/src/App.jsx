@@ -10,7 +10,7 @@ import InterviewReport from './pages/InterviewReport';
 import Pricing from './pages/Pricing';
 import InterviewHistory from './pages/InterviewHistory';
 
-export const ServerUrl = "https://ai-interview-agent-q1nv.onrender.com";
+export const ServerUrl = import.meta.env.VITE_SERVER_URL;
 
 const App = () => {
   const dispatch = useDispatch();
