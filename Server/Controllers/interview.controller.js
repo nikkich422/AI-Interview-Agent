@@ -376,7 +376,7 @@ export const finishInterview = async (req, res) => {
         const finalScore = totalQuestions ? totalScore / totalQuestions : 0;
         const avgConfidence = totalQuestions ? totalConfidence / totalQuestions : 0;
         const avgCommunication = totalQuestions ? totalCommunication / totalQuestions : 0;
-        const avgCorrectness = totalCorrectness ? totalCorrectness / totalCorrectness : 0;
+        const avgCorrectness = totalCorrectness ? totalCorrectness / totalQuestions : 0;
 
         interview.finalScore = finalScore;
         interview.status = "completed";
@@ -391,7 +391,8 @@ export const finishInterview = async (req, res) => {
             questionWiseScore: interview.questions.map((q) => ({
                 question: q.question,
                 score: q.score || 0,
-                feedback: q.feedback || 0,
+                // feedback: q.feedback || 0,
+                feedback: q.feedback ?? "No answer provided for this question",
                 confidence: q.confidence || 0,
                 communication: q.communication || 0,
                 correctness: q.correctness || 0,

@@ -27,7 +27,11 @@ const Step2Interview = ({interviewData, onFinish}) => {
     const [Subtitle, setSubtitle] = useState("");
 
     const videoRef = useRef(null);
+    const shouldListenRef = useRef(true);
+    const isAIPlayingRef = useRef(false);
     const currentQuestion = questions[currentIndex];
+
+    const [hasSubmitted, setHasSubmitted] = useState(false);
 
     useEffect(() => {
         const loadVoices = () => {
@@ -70,6 +74,9 @@ const Step2Interview = ({interviewData, onFinish}) => {
         window.speechSynthesis.onvoiceschanged = loadVoices;
     }, []);
 
+    useEffect(() => {
+        isAIPlayingRef.current = isAIPlaying;
+    }, [isAIPlaying]);
 
     const videoSource = voiceGender === "male" ? maleVideo : femaleVideo;
 
@@ -108,10 +115,6 @@ const Step2Interview = ({interviewData, onFinish}) => {
                 }
 
                 setIsAIPlaying(false);
-                
-                if(isMicOn){
-                    startMic();
-                }
 
                 setTimeout(() => {
                     setSubtitle("");
@@ -164,6 +167,7 @@ const Step2Interview = ({interviewData, onFinish}) => {
     useEffect(() => {
         if(isIntroPhase) return;
         if(!currentQuestion) return;
+        if(feedback) return;
 
         const timer = setInterval(() => {
             setTimeLeft((prev) => {
@@ -177,13 +181,15 @@ const Step2Interview = ({interviewData, onFinish}) => {
 
         return () => clearInterval(timer);
 
-    }, [isIntroPhase, currentIndex]);
+    }, [isIntroPhase, currentIndex, feedback]);
 
     useEffect(() => {
-        if(!isIntroPhase && currentQuestion){
+        setHasSubmitted(false);
+
+        if(currentQuestion){
             setTimeLeft(currentQuestion.timeLimit || 60);
         }
-    }, [currentIndex]);
+    }, [currentQuestion]);
 
     useEffect(() => {
         if(!("webkitSpeechRecognition" in window)) return;
@@ -199,12 +205,26 @@ const Step2Interview = ({interviewData, onFinish}) => {
             setAnswer((prev) => prev + " " + transcript);
         };
 
+        recognition.onend = () => {
+            if (
+                shouldListenRef.current &&
+                !isAIPlayingRef.current
+            ) {
+                try {
+                    recognition.start();
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        };
+
         recognitionRef.current = recognition;
     }, []);
 
     const startMic = () => {
         if(recognitionRef.current && !isAIPlaying){
             try {
+                shouldListenRef.current = true;
                 recognitionRef.current.start();
             } catch (error) {
                 console.log(error);
@@ -214,6 +234,7 @@ const Step2Interview = ({interviewData, onFinish}) => {
 
     const stopMic = () => {
         if(recognitionRef.current){
+            shouldListenRef.current = false;
             recognitionRef.current.stop();
         }
     }
@@ -228,13 +249,22 @@ const Step2Interview = ({interviewData, onFinish}) => {
     }
 
     const submitAnswer = async () => {
-        if(isSubmitting) return;
+        console.log("SUBMIT CALLED");
+        if(isSubmitting || hasSubmitted) return;
+
+        setHasSubmitted(true);
 
         stopMic();
+
+        if(!answer.trim()){
+            setFeedback("No answer provided. Click Next to continue.");
+            setIsSubmitting(false);
+            return;
+        }
+
         setIsSubmitting(true);
         
         try {
-            console.log("Answer from Frontend: ", answer);
             const result = await axios.post(ServerUrl + "/api/interview/submit-answer", {
                 interviewId,
                 questionIndex: currentIndex,
@@ -243,31 +273,26 @@ const Step2Interview = ({interviewData, onFinish}) => {
             }, { withCredentials: true });
 
             setFeedback(result.data.feedback);
-            speakText(result.data.feedback);
-            setIsSubmitting(false);
+            await speakText(result.data.feedback);
         } catch (error) {
-            setIsSubmitting(false);
             console.log(error);
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
     const handleNext = async () => {
-        setAnswer("");
-        setFeedback("");
-
         if(currentIndex + 1 >= questions.length){
             finishInterview();
             return;
         }
-
+        
+        setAnswer("");
+        setFeedback("");
+        
         await speakText("Alright, let's move to the next question.");
 
-        setCurrentIndex(currentIndex + 1);
-        setTimeout(() => {
-            if(isMicOn){
-                startMic();
-            }
-        }, 500);
+        setCurrentIndex(prev => prev + 1);
     }
     
     const finishInterview = async () => {
@@ -290,10 +315,10 @@ const Step2Interview = ({interviewData, onFinish}) => {
         if(isIntroPhase) return;
         if(!currentQuestion) return;
         
-        if(timeLeft === 0 && !isSubmitting && !feedback){
+        if(timeLeft === 0 && !isSubmitting && !hasSubmitted){
             submitAnswer();
         }
-    }, [timeLeft]);
+    }, [timeLeft, isSubmitting, hasSubmitted, currentQuestion, isIntroPhase]);
 
     useEffect(() => {
         return () => {
@@ -369,7 +394,8 @@ const Step2Interview = ({interviewData, onFinish}) => {
                     AI Smart Interview
                 </h2>
 
-                {isIntroPhase && <div className='relative mb-6 bg-gray-50 p-4 sm:p-6 rounded-2xl border border-gray-200 shadow-sm'>
+                {/* {isIntroPhase && <div></div>} */}
+                <div className='relative mb-6 bg-gray-50 p-4 sm:p-6 rounded-2xl border border-gray-200 shadow-sm'>
                     <p className='text-xs sm:text-sm text-gray-400 mb-2'>
                         Question {currentIndex + 1} of {questions.length}
                     </p>
@@ -377,7 +403,7 @@ const Step2Interview = ({interviewData, onFinish}) => {
                     <div className='text-base sm:text-lg font-semibold text-gray-800 leading-relaxed'>
                         {currentQuestion?.question}
                     </div>
-                </div>}
+                </div>
                 <textarea
                 onChange={(e) => setAnswer(e.target.value)}
                 value={answer}
