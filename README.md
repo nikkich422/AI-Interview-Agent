@@ -1,130 +1,107 @@
-# 🚀 AI Interview MERN
+# 🎯 InterviewIQ AI
 
-An AI-powered mock interview platform built with the MERN Stack that helps candidates prepare for real-world interviews through resume analysis, personalized question generation, AI-based answer evaluation, and detailed performance reports.
+An AI-powered mock interview platform that helps candidates prepare for technical and HR interviews through personalized questions, voice interaction, automated evaluation, and performance analytics.
 
----
+## 🚀 Features
 
-# 📌 Overview
+### 🤖 AI-Powered Interview Generation
 
-AI Interview MERN simulates professional HR and Technical interviews using AI. Users can upload their resumes, generate customized interview questions based on their experience and skills, answer those questions, and receive intelligent feedback with performance scoring.
-
-The platform is designed to help students, freshers, and experienced developers improve their interview skills through realistic practice sessions.
-
----
-
-# ✨ Features
-
-## 🔐 Authentication & User Management
-
-* User Registration
-* User Login
-* JWT Authentication
-* Protected Routes
-* Current User Session Management
-
----
-
-## 📄 Resume Analysis
-
-Users can upload their resume in PDF format.
-
-The system:
-
-* Extracts text from PDF files
-* Analyzes resume content using AI
-* Identifies:
+* Generates personalized interview questions based on:
 
   * Job Role
   * Experience Level
+  * Interview Type (Technical / HR)
+  * Resume Content
+  * Skills & Projects
+
+### 📄 Resume Analysis
+
+* Upload PDF resumes for automatic analysis.
+* Extracts:
+
+  * Role
+  * Experience
   * Skills
   * Projects
+* Uses AI to personalize interview questions.
 
----
+### 🎙️ Real-Time Voice Interview
 
-## 🤖 AI Interview Generation
+* AI interviewer asks questions using Text-to-Speech.
+* Candidate answers using:
 
-Generates personalized interview questions using:
+  * Voice (Speech Recognition)
+  * Manual Text Input
+* Human-like interview experience.
 
-* Candidate Role
-* Experience
-* Resume Content
-* Skills
-* Projects
-* Selected Interview Mode
+### ⏱️ Smart Interview Flow
 
-Supported interview types:
+* Difficulty progression:
 
-* HR Interview
-* Technical Interview
+  * Easy Questions
+  * Medium Questions
+  * Hard Questions
+* Individual time limits for every question.
+* Automatic submission on timeout.
 
-Question difficulty progresses automatically:
+### 📊 AI Evaluation Engine
 
-| Question | Difficulty |
-| -------- | ---------- |
-| 1        | Easy       |
-| 2        | Easy       |
-| 3        | Medium     |
-| 4        | Medium     |
-| 5        | Hard       |
+Each answer is evaluated on:
 
----
-
-## 🎯 AI Answer Evaluation
-
-Each answer is analyzed by AI and scored based on:
-
-* Correctness
-* Communication
 * Confidence
-* Overall Quality
+* Communication
+* Correctness
 
-The platform also generates personalized feedback for every response.
+The system generates:
+
+* Question-wise scores
+* Personalized feedback
+* Overall performance rating
+
+### 📈 Analytics Dashboard
+
+* Overall Interview Score
+* Skill Evaluation Metrics
+* Performance Trend Graph
+* Question-wise Breakdown
+* AI Feedback Analysis
+
+### 📑 PDF Report Generation
+
+Download a professional interview performance report including:
+
+* Overall Rating
+* Skill Scores
+* Executive Summary
+* Recommendations
+* Question-wise Evaluation
+
+### 🔐 Authentication & Credits
+
+* Google Authentication
+* JWT-based Authorization
+* Secure HTTP-only Cookies
+* Credit-based Interview System
+
+### 📝 Interview History
+
+* View previously completed interviews.
+* Access detailed reports anytime.
 
 ---
 
-## 📊 Interview Reports
-
-After completing an interview:
-
-* Detailed performance report is generated
-* Individual question analysis
-* AI feedback
-* Overall score
-* Performance summary
-
----
-
-## 📜 Interview History
-
-Users can:
-
-* View previous interviews
-* Access historical reports
-* Track progress over time
-
----
-
-## 💳 Credit System
-
-Interview generation consumes credits.
-
-Features:
-
-* User credit tracking
-* Credit validation before interview creation
-* Remaining credits display
-
----
-
-# 🛠 Tech Stack
+# 🛠️ Tech Stack
 
 ## Frontend
 
 * React.js
-* React Router DOM
 * Redux Toolkit
-* Axios
 * Tailwind CSS
+* Framer Motion
+* Recharts
+* React Circular Progressbar
+* Axios
+* React Router
 
 ## Backend
 
@@ -132,281 +109,146 @@ Features:
 * Express.js
 * MongoDB
 * Mongoose
-
-## AI Integration
-
-* OpenRouter API
-* GPT-4o Mini
-
-## File Processing
-
+* JWT Authentication
 * Multer
 * PDF.js
 
-## Authentication
+## AI & Voice Technologies
 
-* JWT
-* Cookies
+* OpenRouter API
+* Large Language Models (LLMs)
+* Web Speech API
+* Speech Recognition API
+* Speech Synthesis API
 
 ---
 
-# 📁 Project Structure
+# 📂 Project Structure
 
-```text
-AI-Interview-MERN
+```bash
+InterviewIQ-AI
 │
-├── Client
+├── client
 │   ├── src
+│   │   ├── component
 │   │   ├── pages
-│   │   ├── components
 │   │   ├── redux
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   │
-│   └── package.json
+│   │   ├── assets
+│   │   └── App.jsx
 │
-├── Server
+├── server
 │   ├── Controllers
 │   ├── Models
 │   ├── Routes
-│   ├── Services
 │   ├── Middleware
-│   ├── public
-│   ├── server.js
-│   └── package.json
+│   ├── Services
+│   └── Config
 │
 └── README.md
 ```
-
----
 
 # ⚙️ Installation
 
 ## 1. Clone Repository
 
 ```bash
-git clone https://github.com/your-username/AI-Interview-MERN.git
-cd AI-Interview-MERN
+git clone https://github.com/yourusername/interviewiq-ai.git
+cd interviewiq-ai
 ```
 
----
-
-## 2. Backend Setup
-
-Navigate to server folder:
+## 2. Install Frontend Dependencies
 
 ```bash
-cd Server
-```
-
-Install dependencies:
-
-```bash
+cd client
 npm install
 ```
 
-Create `.env` file:
+## 3. Install Backend Dependencies
+
+```bash
+cd ../server
+npm install
+```
+
+## 4. Configure Environment Variables
+
+Create a `.env` file inside the server directory.
 
 ```env
-PORT=8000
+PORT=5000
 
-MONGODB_URI=your_mongodb_connection_string
+MONGO_URI=your_mongodb_connection_string
 
-JWT_SECRET=your_secret_key
+JWT_SECRET=your_jwt_secret
 
 OPENROUTER_API_KEY=your_openrouter_api_key
 ```
 
-Run backend server:
+## 5. Run Backend
 
 ```bash
 npm run dev
 ```
 
----
-
-## 3. Frontend Setup
-
-Navigate to client folder:
+## 6. Run Frontend
 
 ```bash
-cd Client
-```
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Start frontend:
-
-```bash
+cd client
 npm run dev
 ```
 
 ---
 
-# 🔑 Environment Variables
+# 🔄 Interview Workflow
 
-## Backend (.env)
-
-```env
-PORT=8000
-
-MONGODB_URI=
-
-JWT_SECRET=
-
-OPENROUTER_API_KEY=
+```text
+Upload Resume
+      ↓
+AI Resume Analysis
+      ↓
+Generate Personalized Questions
+      ↓
+Voice-Based Interview
+      ↓
+AI Answer Evaluation
+      ↓
+Performance Analytics
+      ↓
+PDF Report Generation
 ```
 
 ---
 
-# 🔄 Application Flow
+# 📊 Evaluation Criteria
 
-### Step 1
-
-User registers or logs into the platform.
-
-⬇
-
-### Step 2
-
-User uploads a resume PDF.
-
-⬇
-
-### Step 3
-
-AI extracts:
-
-* Role
-* Experience
-* Projects
-* Skills
-
-⬇
-
-### Step 4
-
-User selects interview mode:
-
-* HR
-* Technical
-
-⬇
-
-### Step 5
-
-AI generates personalized interview questions.
-
-⬇
-
-### Step 6
-
-User answers interview questions.
-
-⬇
-
-### Step 7
-
-AI evaluates answers and generates feedback.
-
-⬇
-
-### Step 8
-
-Interview report is created and stored.
-
-⬇
-
-### Step 9
-
-User can revisit reports from interview history.
+| Metric        | Description                             |
+| ------------- | --------------------------------------- |
+| Confidence    | Candidate's confidence and presentation |
+| Communication | Clarity and structure of response       |
+| Correctness   | Accuracy and relevance of answer        |
+| Final Score   | Average evaluation score                |
 
 ---
 
-# 🗄 Database Models
+# 🔒 Security Features
 
-## User Model
-
-```javascript
-{
-  name: String,
-  email: String,
-  password: String,
-  credits: Number
-}
-```
-
----
-
-## Interview Model
-
-```javascript
-{
-  userId: ObjectId,
-  role: String,
-  experience: String,
-  mode: String,
-  resumeText: String,
-
-  questions: [
-    {
-      question: String,
-      difficulty: String,
-      timeLimit: Number,
-
-      answer: String,
-      feedback: String,
-
-      score: Number,
-      confidence: Number,
-      communication: Number,
-      correctness: Number
-    }
-  ],
-
-  finalScore: Number,
-  status: String
-}
-```
-
----
-
-# 🌟 Key Highlights
-
-* AI Resume Parsing
-* Personalized Interview Questions
-* HR & Technical Interview Modes
-* AI Feedback System
-* Interview Reports
-* Interview History
-* Credit-Based Usage System
 * JWT Authentication
-* MongoDB Database Integration
-* Modern React Frontend
-* Scalable MERN Architecture
+* Protected Routes
+* HTTP-only Cookies
+* User-based Interview Ownership
+* Credit Validation System
 
 ---
 
-# 🚀 Future Enhancements
+# 🌟 Future Improvements
 
-* Voice-Based Interviews
-* Real-Time AI Conversation
-* Video Interview Support
-* Interview Analytics Dashboard
-* Resume Improvement Suggestions
-* Multiple Language Support
-* Payment Gateway Integration
-* AI Career Recommendations
-
----
-
-# 👨‍💻 Author
-
-Developed as a full-stack MERN application to simulate realistic interview experiences using modern AI technologies.
+* Multi-language Interviews
+* AI Video Avatars
+* Coding Round Simulation
+* Company-Specific Interview Sets
+* Real-Time Emotion Analysis
+* Interview Scheduling
+* Leaderboards & Rankings
 
 ---
 
