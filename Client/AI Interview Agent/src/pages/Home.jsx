@@ -38,8 +38,8 @@ const Home = () => {
         <div className='text-center mb-28'>
           <motion.h1 className='text-4xl md:text-6xl font-semibold leading-tight max-w-4xl mx-auto'>
             Practive Interview with
-            <span className='relative inline-block'>
-              <span className='bg-green-100 text-green-600 px-5 py-1 rounded-full'>
+            <span className='relative inline-block mt-[30px] mb-[10px]'>
+              <span className='bg-green-100 text-green-600 px-5 py-1 rounded-full pb-[10px]'>
                 AI Intelligence
               </span>
             </span>
