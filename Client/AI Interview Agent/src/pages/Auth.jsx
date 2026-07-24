@@ -15,15 +15,16 @@ const Auth = ({isModel = false}) => {
     
     const handleGoogleAuth = async () => {
         try {
+            console.log("Goolge login started");
             const response = await signInWithPopup(auth, provider);
-            // console.log(response);
+            console.log("Firebase response: ", response);
             const user = response.user;
             let name = user.displayName;
             let email = user.email;
 
             const result = await axios.post(ServerUrl + "/api/auth/google", { name, email }, {withCredentials: true});
             dispatch(setUserData(result.data.user));
-            console.log(result);
+            console.log("Backend response: ",result);
 
         } catch (error) {
             dispatch(setUserData(null));
