@@ -10,6 +10,7 @@ import paymentRouter from "./Routes/payment.route.js";
 
 const app = express();
 dotenv.config();
+app.set("trust proxy", 1);
 
 app.use(cors({
     origin: "https://ai-interview-agent-1-4xaq.onrender.com",
